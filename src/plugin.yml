@@ -1,0 +1,12 @@
+name: DiceFreezeMinigame
+version: 1.0
+description: Dicecraft FreezeMinigame
+author: Ste3et_C0st
+website: http://dicecraft.de
+depend: [Vault, ProtocolLib, TagAPI]
+main: me.Ste3et_C0st.DiceFreezeMinigame.main
+commands: 
+  freeze:
+    description:  Display Dicecraft Jump help
+    usage:  /<command>
+    aliases: [bt]
