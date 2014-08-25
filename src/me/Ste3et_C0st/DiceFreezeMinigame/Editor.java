@@ -13,17 +13,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class Editor {
-	HashMap<String, Location> arena = new HashMap<String, Location>();
-	HashMap<String, Location> exit = new HashMap<String, Location>();
-	HashMap<String, Location> c1 = new HashMap<String, Location>();
-	HashMap<String, Location> c2 = new HashMap<String, Location>();
-	HashMap<String, Location> lobby = new HashMap<String, Location>();
-	HashMap<String, Location> l = new HashMap<String, Location>();
-	HashMap<String, String> name = new HashMap<String, String>();
-	HashMap<String, String> color = new HashMap<String, String>();
-	static HashMap<Player, String> player = new HashMap<Player, String>();
+	static HashMap<String, Location> arena = new HashMap<String, Location>();
+	static HashMap<String, Location> exit = new HashMap<String, Location>();
+	static HashMap<String, Location> c1 = new HashMap<String, Location>();
+	static HashMap<String, Location> c2 = new HashMap<String, Location>();
+	static HashMap<String, Location> lobby = new HashMap<String, Location>();
+	static HashMap<String, Location> l = new HashMap<String, Location>();
+	public static HashMap<Player, String> player = new HashMap<Player, String>();
 	
-	public Editor(String string, Player p) {
+	public static void enter(String string, Player p) {
 		if(ArenaManager.getManager().ArenaExist(string)){
 			p.sendMessage(main.s + "Diese Arena Existiert bereits");
 			return;
@@ -36,7 +34,7 @@ public class Editor {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void enterEdit(Player p, String s) {
+	public static void enterEdit(Player p, String s) {
 		if(!isInEditor(p)){
 			p.getInventory().clear();
 			p.updateInventory();
@@ -51,9 +49,10 @@ public class Editor {
 			select.add(" §bX: N/A");
 			select.add(" §bY: N/A");
 			select.add(" §bZ: N/A");
-			p.getInventory().setItem(0, is(Material.COCOA, main.s + "Slector", select, 0, 1));
+			p.getInventory().setItem(0, is(Material.BONE, main.s + "Slector", select, 0, 1));
 			p.getInventory().setItem(4, is(Material.DIAMOND_SWORD, main.s + "Set Arenaspawn", null, 0, 1));
 			p.getInventory().setItem(8, is(Material.BOWL, main.s + "Exit Select Mode", null, 0, 1));
+			p.getInventory().setItem(6, is(Material.DIAMOND, main.s + "Finish Map", null, 0, 1));
 			p.updateInventory();
 			player.put(p, s);
 		}else{
@@ -62,18 +61,16 @@ public class Editor {
 	}
 	
 	@SuppressWarnings("deprecation")
-	public void exit(Player p) {
+	public static void exit(Player p) {
 		p.getInventory().clear();
 		p.updateInventory();
-		String arena = getEditorName(p);
-		this.arena.remove(arena);
-		this.c1.remove(arena);
-		this.c2.remove(arena);
-		this.color.remove(arena);
-		this.exit.remove(arena);
-		this.l.remove(arena);
-		this.lobby.remove(arena);
-		this.name.remove(arena);
+		String a = getEditorName(p);
+		arena.remove(a);
+		c1.remove(a);
+		c2.remove(a);
+		exit.remove(a);
+		l.remove(a);
+		lobby.remove(a);
 		player.remove(p);
 		p.sendMessage(main.s + "Arena Modus wurde verlassen");
 	}
@@ -85,49 +82,51 @@ public class Editor {
 		return null;
 	}
 
-	public boolean debug(Player p){
+	public static boolean debug(Player p){
 		if(isInEditor(p)){
-			String arena = getEditorName(p);
-			if(this.arena.get(arena) == null || this.c1.get(arena) == null || this.c2.get(arena) == null ||
-			   this.exit.get(arena) == null || this.lobby.get(arena) == null || this.name.get(arena) == null){
+			String a = getEditorName(p);
+			if(getArena(a) == null || getc1(a) == null || getc2(a) == null ||
+			   getExit(a) == null || getlobby(a) == null){
 				p.sendMessage("§8=====================");
 				p.sendMessage("§7Arena Debug");
 				p.sendMessage("§8=====================");
-				if(this.name.get(arena) == null){
+				if(arena == null){
 					p.sendMessage(" §7Arena Name: §cUNKNOW");
 				}else{
-					p.sendMessage(" §7Arena Name: §2" + this.name.get(arena));
+					p.sendMessage(" §7Arena Name: §2" + a);
 				}
 				
-				if(this.arena.get(arena) == null){
+				if(getArena(a) == null){
 					p.sendMessage(" §7Arena Spawn: §cMissing");
 				}else{
 					p.sendMessage(" §7Arena Spawn: §2Exist");
 				}
 				
-				if(this.exit.get(arena) == null){
+				if(getExit(a) == null){
 					p.sendMessage(" §7Arena Exit: §cMissing");
 				}else{
 					p.sendMessage(" §7Arena Exit: §2Exist");
 				}
 				
-				if(this.c1.get(arena) == null){
+				if(getc1(a) == null){
 					p.sendMessage(" §7Arena Corner 1: §cMissing");
 				}else{
 					p.sendMessage(" §7Arena Corner 1: §2Exist");
 				}
 				
-				if(this.c2.get(arena) == null){
+				if(getc2(a) == null){
 					p.sendMessage(" §7Arena Corner 2: §cMissing");
 				}else{
 					p.sendMessage(" §7Arena Corner 2: §2Exist");
 				}
 				
-				if(this.lobby.get(arena) == null){
+				if(getlobby(a) == null){
 					p.sendMessage(" §7Arena Lobby: §cMissing");
 				}else{
 					p.sendMessage(" §7Arena Lobby: §2Exist");
 				}
+				
+				p.sendMessage("§8=====================");
 				return false;
 			}else{
 				p.sendMessage("§8=====================");
@@ -143,7 +142,8 @@ public class Editor {
 		}
 	}
 	
-	public void create(Player p){
+	@SuppressWarnings("deprecation")
+	public static void create(Player p){
 		if(!isInEditor(p)){
 			p.sendMessage(main.s + "Du bist nicht im Editor Modus");
 		}
@@ -152,19 +152,24 @@ public class Editor {
 			return;
 		}
 		
-		String arena = player.get(p);
+		String a = player.get(p);
 		
-		if(ArenaManager.getManager().ArenaExist(arena)){
+		if(ArenaManager.getManager().ArenaExist(a)){
 			p.sendMessage(main.s + "Arena Existiert bereits");
 			return;
 		}
 		
-		ArenaManager.getManager().createArena(getc1(arena), getc2(arena), getArena(arena), getExit(arena), null, 4, arena, getlobby(arena));
+		ArenaManager.getManager().createArena(getc1(a), getc2(a), getArena(a), getExit(a), null, 4, a, getlobby(a));
 		p.sendMessage(main.s + "§2Arena wurde erstellt");
-		exit(p);
+		
+		p.getInventory().clear();
+		p.updateInventory();
+		p.getInventory().setItem(2, is(Material.WOOL, main.s + "Team Modus Betreten", null, 13, 1));
+		p.getInventory().setItem(6, is(Material.WOOL, main.s + "Fertig Stellen", null, 14, 1));
+		p.updateInventory();
 	}
 	
-	private static boolean isInEditor(Player p) {
+	public static boolean isInEditor(Player p) {
 		if(player.get(p) != null){
 			return true;
 		}else{
@@ -173,104 +178,80 @@ public class Editor {
 		
 	}
 
-	public Location getArena(String s){
-		if(this.arena.get(s) != null){
-			return this.arena.get(s);
+	public static Location getArena(String s){
+		if(arena.get(s) != null){
+			return arena.get(s);
 		}else{
 			return null;
 		}
 	}
 	
-	public Location getExit(String s){
-		if(this.exit.get(s) != null){
-			return this.exit.get(s);
+	public static Location getExit(String s){
+		if(exit.get(s) != null){
+			return exit.get(s);
 		}else{
 			return null;
 		}
 	}
 	
-	public Location getc1(String s){
-		if(this.c1.get(s) != null){
-			return this.c1.get(s);
+	public static Location getc1(String s){
+		if(c1.get(s) != null){
+			return c1.get(s);
 		}else{
 			return null;
 		}
 	}
 	
-	public Location getc2(String s){
-		if(this.c2.get(s) != null){
-			return this.c2.get(s);
+	public static Location getc2(String s){
+		if(c2.get(s) != null){
+			return c2.get(s);
 		}else{
 			return null;
 		}
 	}
 	
-	public Location getlobby(String s){
-		if(this.lobby.get(s) != null){
-			return this.lobby.get(s);
+	public static Location getlobby(String s){
+		if(lobby.get(s) != null){
+			return lobby.get(s);
 		}else{
 			return null;
 		}
 	}
 	
-	public Location getl(String s){
-		if(this.l.get(s) != null){
-			return this.l.get(s);
-		}else{
-			return null;
-		}
-	}
-	
-	public String getname(String s){
-		if(this.name.get(s) != null){
-			return this.name.get(s);
-		}else{
-			return null;
-		}
-	}
-	
-	public String getcolor(String s){
-		if(this.color.get(s) != null){
-			return this.color.get(s);
+	public static Location getl(String s){
+		if(l.get(s) != null){
+			return l.get(s);
 		}else{
 			return null;
 		}
 	}
 	
 	
-	public void setArena(Location l, String s){
-		this.arena.put(s, l);
+	public static void setArena(Location l, String s){
+		arena.put(s, l);
 	}
 	
-	public void setExit(Location l, String s){
-		this.exit.put(s, l);
+	public static void setExit(Location l, String s){
+		exit.put(s, l);
 	}
 	
-	public void setc1(Location l, String s){
-		this.c1.put(s, l);
+	public static void setc1(Location l, String s){
+		c1.put(s, l);
 	}
 	
-	public void setc2(Location l, String s){
-		this.c2.put(s, l);
+	public static void setc2(Location l, String s){
+		c2.put(s, l);
 	}
 	
-	public void setlobby(Location l, String s){
-		this.lobby.put(s, l);
+	public static void setlobby(Location l, String s){
+		lobby.put(s, l);
 	}
 	
-	public void setl(Location l, String s){
-		this.l.put(s, l);
+	public static void setl(Location a, String s){
+		l.put(s, a);
 	}
 	
-	public void setname(String a, String s){
-		this.name.put(s, a);
-	}
-	
-	public void setcolor(String a, String s){
-		this.color.put(s, a);
-	}
-	
-	public ItemStack is(Material m, String s, List<String> lore, int dur, int amount){
+	public static ItemStack is(Material m, String s, List<String> lore, int dur, int amount){
 		ItemStack i = new ItemStack(m);
 		ItemMeta meta = i.getItemMeta();
 		meta.setDisplayName(s);

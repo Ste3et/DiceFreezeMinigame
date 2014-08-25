@@ -1,5 +1,7 @@
 package me.Ste3et_C0st.DiceFreezeMinigame.Listener;
 
+import java.sql.SQLException;
+
 import me.Ste3et_C0st.DiceFreezeMinigame.main;
 import me.Ste3et_C0st.DiceFreezeMinigame.System.Arena;
 import me.Ste3et_C0st.DiceFreezeMinigame.System.ArenaManager;
@@ -20,6 +22,9 @@ public class OnPlayerDamageEvent implements Listener {
 	
 	@EventHandler
 	public void onRightClick(PlayerInteractEntityEvent e){
+		if(!ArenaManager.getManager().isInGame(e.getPlayer())){
+			return;
+		}
 	 	if((Player) e.getRightClicked() != null){
 	 		Player rightcklicked =(Player) e.getRightClicked();
 	 		Player rightclicker = e.getPlayer();
@@ -42,6 +47,8 @@ public class OnPlayerDamageEvent implements Listener {
 	 									a1.cancelShield(rightcklicked);
 	 								}
 	 								
+	 								main.token.addToken(rightclicker, 2);
+	 								rightclicker.sendMessage(main.s + "Du hast 2 Tokens für das entfreezen erhalten");
 	 								rightcklicked.teleport(a1.returnLocation(team1));
 	 								rightclicker.playSound(rightclicker.getLocation(), Sound.ITEM_PICKUP, 1, 1);
 	 								a1.givePlayer(rightcklicked);
@@ -66,9 +73,9 @@ public class OnPlayerDamageEvent implements Listener {
 		 }
 	 }
 	
-	 @SuppressWarnings("deprecation")
+	 @SuppressWarnings({ "deprecation" })
 	@EventHandler
-	    public void onHit(EntityDamageByEntityEvent e) {
+	    public void onHit(EntityDamageByEntityEvent e) throws SQLException {
 	        if(e.getDamager() instanceof Projectile) {
 	            Projectile proj = (Projectile) e.getDamager();
 	                if(proj.getType() == EntityType.SNOWBALL) {
@@ -110,7 +117,19 @@ public class OnPlayerDamageEvent implements Listener {
 	                            		
 	                            		if(!a.isFroozen(hit) && !a.isShield(hit)){
 	                            			shooter.playSound(shooter.getLocation(), Sound.ITEM_PICKUP, 1, 1);
-	                            			a.freeze(hit);
+	                                        if(shooter.hasPermission("Freeze.Snow.IV")){
+	                                        	a.freeze(hit, 30);
+	                                        }else if(shooter.hasPermission("Freeze.Snow.III")){
+	                                        	a.freeze(hit, 20);
+	                                        }else if(shooter.hasPermission("Freeze.Snow.II")){
+	                                        	a.freeze(hit, 15);
+	                                        }else{
+	                                        	a.freeze(hit, 10);
+	                                        }
+	                            			
+	    	 								main.token.addToken(shooter, 1);
+	    	 								shooter.sendMessage(main.s + "Du hast einen Token für das freezen erhalten");
+	                                        
 		                            		if(a.teamS() > 0){
 		                            			int team = a.getTeam(shooter);
 		                            			int teamHit = a.getTeam(hit);
@@ -148,8 +167,8 @@ public class OnPlayerDamageEvent implements Listener {
 		                            				if(team1 == true || team2 == true){
 		                            					for(Player p : a.returnTeam(team)){
 		                            						p.sendMessage(main.s + "Dein Team hat das Spiel gewonnen");
-		                            						p.sendMessage(main.s + Message.replace("Du hast %MONEY% Gold gewonnen", "%MONEY%", a.getMoney() + ""));
-		                            						main.econ.depositPlayer(p.getName(), a.getMoney());
+		                            						p.sendMessage(main.s + Message.replace("Du hast %TOKEN% Tokens gewonnen", "%TOKEN%", a.getMoney() + ""));
+		                            						main.token.addToken(p, a.getMoney().intValue());
 		                            					}
 		                            					
 				                            			ArenaManager.getManager().finishGame(a.getId());
@@ -162,8 +181,8 @@ public class OnPlayerDamageEvent implements Listener {
 		                            				   (team1 == true && team2 == true && team3 == false && team4 == true)){
 		                            					for(Player p : a.returnTeam(team)){
 		                            						p.sendMessage(main.s + "Dein Team hat das Spiel gewonnen");
-		                            						p.sendMessage(main.s + Message.replace("Du hast %MONEY% Gold gewonnen", "%MONEY%", a.getMoney() + ""));
-		                            						main.econ.depositPlayer(p.getName(), a.getMoney());
+		                            						p.sendMessage(main.s + Message.replace("Du hast %TOKEN% Tokens gewonnen", "%TOKEN%", a.getMoney() + ""));
+		                            						main.token.addToken(p, a.getMoney().intValue());
 		                            					}
 		                            					
 				                            			ArenaManager.getManager().finishGame(a.getId());
@@ -175,8 +194,8 @@ public class OnPlayerDamageEvent implements Listener {
 			                            		a.setScoreboard();
 			                            		if(a.getPlayers().size() - 1 == a.getFroozenPlayers().size()){
 			                            			shooter.sendMessage(main.s + "Du hast das Spiel gewonnen");
-			                            			shooter.sendMessage(main.s + Message.replace("Du hast %MONEY% Gold gewonnen", "%MONEY%", a.getMoney() * 2 + ""));
-			                            			main.econ.depositPlayer(shooter.getName(), a.getMoney() * 2);
+			                            			shooter.sendMessage(main.s + Message.replace("Du hast %TOKEN% Tokens gewonnen", "%TOKEN%", a.getMoney() * 2 + ""));
+													main.token.addToken(shooter, a.getMoney().intValue() * 2);
 			                            			ArenaManager.getManager().finishGame(a.getId());
 			                            			e.setCancelled(true);
 			                            		}

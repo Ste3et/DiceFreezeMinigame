@@ -7,6 +7,7 @@ import me.Ste3et_C0st.DiceFreezeMinigame.Listener.OnPlayerBlockPlace;
 import me.Ste3et_C0st.DiceFreezeMinigame.Listener.OnPlayerDamageEvent;
 import me.Ste3et_C0st.DiceFreezeMinigame.Listener.OnPlayerDeath;
 import me.Ste3et_C0st.DiceFreezeMinigame.Listener.OnPlayerDrop;
+import me.Ste3et_C0st.DiceFreezeMinigame.Listener.OnPlayerInteractEntityEvent;
 import me.Ste3et_C0st.DiceFreezeMinigame.Listener.OnPlayerInterarcEvent;
 import me.Ste3et_C0st.DiceFreezeMinigame.Listener.OnPlayerMoveEvent;
 import me.Ste3et_C0st.DiceFreezeMinigame.Listener.OnPlayerQuitEvent;
@@ -16,10 +17,10 @@ import me.Ste3et_C0st.DiceFreezeMinigame.System.ArenaManager;
 import me.Ste3et_C0st.DiceFreezeMinigame.System.Message;
 import me.Ste3et_C0st.DiceFreezeMinigame.System.loader;
 import me.Ste3et_C0st.DiceFreezeMinigame.System.saveMap;
-import net.milkbowl.vault.economy.Economy;
+import me.Ste3et_C0st.DiceTokenAPI.TokenAPI;
+import net.milkbowl.vault.permission.Permission;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -33,8 +34,8 @@ public class main extends JavaPlugin{
 	private static main instance;
 	public static EffectManager effectManager;
 	public static String s = "§7[§2FreezeIT§7] ";
-	public static Economy econ = null;
-	
+	public static TokenAPI token;
+	public static Permission perms = null;
 	public void onEnable(){
         EffectLib lib = EffectLib.instance();
         effectManager = new EffectManager(lib);
@@ -52,24 +53,17 @@ public class main extends JavaPlugin{
 		Bukkit.getServer().getPluginManager().registerEvents(new OnInventoryOpenEvent(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new OnPlayerDeath(), this);
 		Bukkit.getServer().getPluginManager().registerEvents(new OnCommand(), this);
+		Bukkit.getServer().getPluginManager().registerEvents(new OnPlayerInteractEntityEvent(), this);
 		instance = this;
-	    if (!setupEconomy() ) {
-	        getServer().getPluginManager().disablePlugin(this);
-	        return;
-	    }
+		token = (TokenAPI) Bukkit.getPluginManager().getPlugin("DiceTokenAPI");
+		setupPermissions();
 	}
 	
-    private boolean setupEconomy() {
-	      if (getServer().getPluginManager().getPlugin("Vault") == null) {
-	          return false;
-	      }
-	      RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
-	      if (rsp == null) {
-	          return false;
-	      }
-	      econ = rsp.getProvider();
-	      return econ != null;
-	  }
+    private boolean setupPermissions() {
+        RegisteredServiceProvider<Permission> rsp = getServer().getServicesManager().getRegistration(Permission.class);
+        perms = rsp.getProvider();
+        return perms != null;
+    }
 	  
 	
 	public void onDisable(){
@@ -112,7 +106,7 @@ public class main extends JavaPlugin{
 			  	return true;
 			  	}
 		  
-	  @SuppressWarnings({ "deprecation", "unused" })
+	  @SuppressWarnings("deprecation" )
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 			if(sender instanceof Player){
 				Player p = (Player) sender;
@@ -152,7 +146,7 @@ public class main extends JavaPlugin{
 					}else if(args.length == 2){
 						if(args[0].equalsIgnoreCase("new")){
 							if(p.hasPermission("FreezeIT.admin")){
-								Editor edit = new Editor(args[1], p);
+								Editor.enter(args[1], p);
 							}else{
 								p.sendMessage(s + Message.message.get(0));
 							}

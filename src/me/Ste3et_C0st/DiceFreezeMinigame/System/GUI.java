@@ -80,7 +80,9 @@ public class GUI {
 	}
 	
 	public static short returnDurability(String s){
-		if(s.equalsIgnoreCase("&a")){
+		if(s == null){
+			return 0;
+		}else if(s.equalsIgnoreCase("&a")){
 			return 5;
 		}else if(s.equalsIgnoreCase("&b")){
 			return 3;

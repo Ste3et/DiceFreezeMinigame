@@ -60,7 +60,7 @@ public class saveMap
 	    fc.set("Arena.arena.z", a.arena.getZ());
 	    fc.set("Arena.arena.yaw", a.arena.getYaw());
 	    fc.set("Arena.arena.pitch", a.arena.getPitch());
-	    fc.set("Arena.arena.world", a.lobby.getWorld().getName());
+	    fc.set("Arena.arena.world", a.arena.getWorld().getName());
 	    main.debugMSG("  - Arena Saving");
 	    fc.set("Arena.exit.x", a.exit.getX());
 	    fc.set("Arena.exit.y", a.exit.getY());
@@ -71,22 +71,26 @@ public class saveMap
 	    main.debugMSG("  - Exit Saving");
 	    if(a.teamS() > 0){
 	    	if(a.teamS() == 2){
-	    		fc.set("Arena.size", a.teamS());
-		    	fc.set("Arena.team.1.name", a.returnString(1));
-		    	fc.set("Arena.team.1.color", a.returnColor(1));
-		    	fc.set("Arena.team.1.Location.x", a.returnLocation(1).getX());
-		    	fc.set("Arena.team.1.Location.y", a.returnLocation(1).getY());
-		    	fc.set("Arena.team.1.Location.z", a.returnLocation(1).getZ());
-		    	fc.set("Arena.team.1.Location.yaw", a.returnLocation(1).getYaw());
-		    	fc.set("Arena.team.1.Location.pitch", a.returnLocation(1).getPitch());
-		    	
-		    	fc.set("Arena.team.2.name", a.returnString(2));
-		    	fc.set("Arena.team.2.color", a.returnColor(2));
-		    	fc.set("Arena.team.2.Location.x", a.returnLocation(2).getX());
-		    	fc.set("Arena.team.2.Location.y", a.returnLocation(2).getY());
-		    	fc.set("Arena.team.2.Location.z", a.returnLocation(2).getZ());
-		    	fc.set("Arena.team.2.Location.yaw", a.returnLocation(2).getYaw());
-		    	fc.set("Arena.team.2.Location.pitch", a.returnLocation(2).getPitch());
+	    		if(a.returnString(1) != ""){
+		    		fc.set("Arena.size", a.teamS());
+			    	fc.set("Arena.team.1.name", a.returnString(1));
+			    	fc.set("Arena.team.1.color", a.returnColor(1));
+			    	fc.set("Arena.team.1.Location.x", a.returnLocation(1).getX());
+			    	fc.set("Arena.team.1.Location.y", a.returnLocation(1).getY());
+			    	fc.set("Arena.team.1.Location.z", a.returnLocation(1).getZ());
+			    	fc.set("Arena.team.1.Location.yaw", a.returnLocation(1).getYaw());
+			    	fc.set("Arena.team.1.Location.pitch", a.returnLocation(1).getPitch());
+	    		}
+
+	    		if(a.returnString(2) != ""){
+			    	fc.set("Arena.team.2.name", a.returnString(2));
+			    	fc.set("Arena.team.2.color", a.returnColor(2));
+			    	fc.set("Arena.team.2.Location.x", a.returnLocation(2).getX());
+			    	fc.set("Arena.team.2.Location.y", a.returnLocation(2).getY());
+			    	fc.set("Arena.team.2.Location.z", a.returnLocation(2).getZ());
+			    	fc.set("Arena.team.2.Location.yaw", a.returnLocation(2).getYaw());
+			    	fc.set("Arena.team.2.Location.pitch", a.returnLocation(2).getPitch());
+	    		}
 	    	}else if(a.teamS() == 4){
 	    		fc.set("Arena.size", a.teamS());
 		    	fc.set("Arena.team.1.name", a.returnString(1));

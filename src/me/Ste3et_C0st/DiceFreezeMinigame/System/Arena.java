@@ -48,7 +48,7 @@ public class Arena {
 	HashMap<Player, Integer> timerTask = new HashMap<Player, Integer>();
 	HashMap<Player, AnimatedBallEntityEffect> ABEE = new HashMap<Player, AnimatedBallEntityEffect>();
 	Integer freezeTime = 10;
-	Integer teams = 0;
+	Integer teams = 2;
 	
 	Integer teamFrozen01 = 0;
 	Integer teamFrozen02 = 0;	
@@ -86,6 +86,9 @@ public class Arena {
 	Location lobby = null;
 	Integer lobbyTimer;
 	
+	HashMap<Player, Integer> snowball = new HashMap<Player, Integer>();
+	HashMap<Player, Integer> shieldT = new HashMap<Player, Integer>();
+	
     public Arena(Location c1,Location c2,Location arenaSpawn,Location exitArena,Integer min,String Arenaname, Integer ArenaID, Location Lobby){
         this.arena = arenaSpawn;
         this.id = ArenaID;
@@ -122,6 +125,30 @@ public class Arena {
     		this.s4 = s;
     	}else{
     		return;
+    	}
+    }
+    
+    public void addSnowball(Player p, int i){
+    	this.snowball.put(p, i);
+    }
+    
+    public int getSnowball(Player p){
+    	if(this.snowball.get(p) == null){
+    		return 0;
+    	}else{
+    		return this.snowball.get(p);
+    	}
+    }
+    
+    public void addTimer(Player p, int i){
+    	this.shieldT.put(p, i);
+    }
+    
+    public int getTimer(Player p){
+    	if(this.shieldT.get(p) == null){
+    		return 0;
+    	}else{
+    		return this.shieldT.get(p);
     	}
     }
     
@@ -617,7 +644,7 @@ public class Arena {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void freeze(Player hit) {
+	public void freeze(Player hit, int i) {
 		froozen.add(hit);
 		AnimatedBallEntityEffect ab = new AnimatedBallEntityEffect(main.effectManager , (Entity) hit);
 		ParticleEffect ap = ParticleEffect.FIREWORKS_SPARK;
@@ -647,7 +674,7 @@ public class Arena {
 		IM.setDisplayName(main.s + "Back To the lobby");
 		IS.setItemMeta(IM);
 		hit.getInventory().addItem(IS);
-		playerFreezeTimer(hit);
+		playerFreezeTimer(hit,i);
 		hit.updateInventory();
 	}
 
@@ -692,11 +719,10 @@ public class Arena {
 		return this.freezeTime;
 	}
 	
-	public void playerFreezeTimer(final Player p){
+	public void playerFreezeTimer(final Player p, final int i){
 		Plugin pl = me.Ste3et_C0st.DiceFreezeMinigame.main.getInstance();
 		timerTask.put(p, Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(pl, new Runnable(){
-			int r = getFreezeTime();
-			int o = r;
+			int o = i;
 			@Override
 			public void run() {
 				p.setLevel(o - 1);
@@ -711,10 +737,10 @@ public class Arena {
 		}, 0L, 20L));
 	}
 
-	public void playerShield(final Player p){
+	public void playerShield(final Player p, final int i){
 		Plugin pl = me.Ste3et_C0st.DiceFreezeMinigame.main.getInstance();
 		shield.put(p, Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(pl, new Runnable(){
-			int r = 4;
+			int r = i;
 			int o = r;
 			@SuppressWarnings("deprecation")
 			@Override
@@ -781,13 +807,21 @@ public class Arena {
         p.updateInventory();
         ItemStack is = new ItemStack(Material.SNOW_BALL);
         ItemMeta im = is.getItemMeta();
-        im.setDisplayName(main.s + "Snow ball");
+        im.setDisplayName(main.s + "Snow ball Stärke §4" + returnValue(p, "snow"));
         is.setItemMeta(im);
         p.getInventory().addItem(is);
         p.updateInventory();
         removeFroozen(p);
         p.playSound(p.getLocation(), Sound.ANVIL_USE, 1, 1);
-        playerShield(p);
+        if(returnValue(p, "shield").equalsIgnoreCase("IV")){
+            playerShield(p,10);
+        }else if(returnValue(p, "shield").equalsIgnoreCase("III")){
+            playerShield(p,7);
+        }else if(returnValue(p, "shield").equalsIgnoreCase("II")){
+            playerShield(p,5);
+        }else{
+        	playerShield(p,3);
+        }
         p.setLevel(0);
 	}
 
@@ -937,6 +971,56 @@ public class Arena {
 		}
 	}
 	
+	public String returnValue(Player p, String s){
+		if(s.equalsIgnoreCase("snow")){
+			 if(getSnowball(p) == 0){
+                 if(p.hasPermission("Freeze.Snow.IV")){
+                 	return "IV";
+                 }else if(p.hasPermission("Freeze.Snow.III")){
+                	 return "III";
+                 }else if(p.hasPermission("Freeze.Snow.II")){
+                	 return "II";
+                 }else{
+                	 return "I";
+                 }
+			 }else{
+                 if(getSnowball(p) == 4){
+                	 return "IV";
+                 }else if(getSnowball(p) == 3){
+                	 return "III";
+                 }else if(getSnowball(p) == 2){
+                	 return "II";
+                 }else{
+                	 return "I"; 
+                 }
+			 }
+		}else if(s.equalsIgnoreCase("shield")){
+			if(getTimer(p) == 0){
+                if(p.hasPermission("Freeze.Save.IV")){
+                 	return "IV";
+                 }else if(p.hasPermission("Freeze.Save.III")){
+                	 return "III";
+                 }else if(p.hasPermission("Freeze.Save.II")){
+                	 return "II";
+                 }else{
+                	 return "I";
+                 }
+			}else{
+                if(getTimer(p) == 4){
+               	 return "IV";
+                }else if(getTimer(p) == 3){
+               	 return "III";
+                }else if(getTimer(p) == 2){
+               	 return "II";
+                }else{
+               	 return "I"; 
+                }
+			}
+		}else{
+			return "I";
+		}
+	}
+	
 	public void startGame() {
 	    Plugin pl = me.Ste3et_C0st.DiceFreezeMinigame.main.getInstance();
 	    this.timer1 = true;
@@ -959,7 +1043,7 @@ public class Arena {
                     		p.getInventory().clear();
                             ItemStack is = new ItemStack(Material.SNOW_BALL);
                             ItemMeta im = is.getItemMeta();
-                            im.setDisplayName(main.s + "Snow ball");
+                            im.setDisplayName(main.s + "Snow ball Stärke §4" + returnValue(p, "snow"));
                             is.setItemMeta(im);
                             
             				ItemStack IS = new ItemStack(Material.NETHER_STAR);

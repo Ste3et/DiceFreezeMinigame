@@ -604,6 +604,11 @@ public class ArenaManager {
 			is.setItemMeta(im);
 			p.getInventory().remove(0);
 			
+			ItemStack ISs = new ItemStack(Material.CHEST);
+			ItemMeta IMm = ISs.getItemMeta();
+			IMm.setDisplayName(main.s + "Item Selector");
+			ISs.setItemMeta(IMm);
+			
 			ItemStack IS = new ItemStack(Material.NETHER_STAR);
 			ItemMeta IM = IS.getItemMeta();
 			IM.setDisplayName(main.s + "Back To the lobby");
@@ -611,7 +616,8 @@ public class ArenaManager {
 			
 			
 			p.getInventory().setItem(0, is);
-			p.getInventory().setItem(4, IS);
+			p.getInventory().setItem(4, ISs);
+			p.getInventory().setItem(8, IS);
 			p.updateInventory();
 	        a.addPlayer(p);
             if(!a.getSign().isEmpty()){
@@ -624,6 +630,8 @@ public class ArenaManager {
             
             p.setAllowFlight(false);
             p.setFlying(false);
+            a.addTimer(p, 0);
+            a.addSnowball(p, 0);
 		}
 	}
 }

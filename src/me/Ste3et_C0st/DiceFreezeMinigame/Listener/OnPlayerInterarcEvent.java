@@ -1,13 +1,16 @@
 package me.Ste3et_C0st.DiceFreezeMinigame.Listener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import me.Ste3et_C0st.DiceFreezeMinigame.Editor;
+import me.Ste3et_C0st.DiceFreezeMinigame.Team;
 import me.Ste3et_C0st.DiceFreezeMinigame.main;
 import me.Ste3et_C0st.DiceFreezeMinigame.System.Arena;
 import me.Ste3et_C0st.DiceFreezeMinigame.System.ArenaManager;
 import me.Ste3et_C0st.DiceFreezeMinigame.System.GUI;
+import me.Ste3et_C0st.DiceFreezeMinigame.System.GuiSelector;
+import me.Ste3et_C0st.DiceFreezeMinigame.System.GuiTeam;
+import me.Ste3et_C0st.DiceFreezeMinigame.System.saveMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -34,7 +37,7 @@ public class OnPlayerInterarcEvent implements Listener{
 					if(e.getItem() != null){
 						if(e.getItem().hasItemMeta()){
 							if(e.getItem().getItemMeta().hasDisplayName()){
-								if(e.getItem().getItemMeta().getDisplayName().equalsIgnoreCase(main.s + "Snow ball")){
+								if(e.getItem().getItemMeta().getDisplayName().startsWith(main.s + "Snow ball")){
 							        if(e.getClickedBlock() != null){
 							        	if(e.getClickedBlock().getType() == Material.FURNACE || e.getClickedBlock().getType() == Material.CHEST ||
 							        	   e.getClickedBlock().getType() == Material.WORKBENCH || e.getClickedBlock().getType() == Material.ENCHANTMENT_TABLE ||
@@ -47,18 +50,33 @@ public class OnPlayerInterarcEvent implements Listener{
 							        }
 									ItemStack is = new ItemStack(Material.SNOW_BALL);
 							        ItemMeta im = is.getItemMeta();
-							        im.setDisplayName(main.s + "Snow ball");
+							        im.setDisplayName(main.s + "Snow ball Stärke §4" + a.returnValue(p, "snow"));
 							        is.setItemMeta(im);
 							        p.getInventory().addItem(is);
+							        p.updateInventory();
 								}else if(e.getItem().getItemMeta().getDisplayName().endsWith("Back To the lobby")){
 									ArenaManager.getManager().removePlayer(p);
 								}else if(e.getItem().getItemMeta().getDisplayName().equalsIgnoreCase("§c§lWähle ein Team !") || e.getItem().getItemMeta().getDisplayName().startsWith("Team")){
 									GUI.openGui(p, a);
+								}else if(e.getItem().getItemMeta().getDisplayName().equalsIgnoreCase(main.s + "Item Selector")){
+									GuiSelector.openGui(p, a);
 								}
 							}
 						}
 					}else{
 						e.setCancelled(true);
+					}
+				}
+			}else{
+				if(e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK){
+					if(e.getItem() != null){
+						if(e.getItem().hasItemMeta()){
+							if(e.getItem().getItemMeta().hasDisplayName()){
+								if(e.getItem().getItemMeta().getDisplayName().endsWith("Back To the lobby")){
+									ArenaManager.getManager().removePlayer(p);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -91,8 +109,7 @@ public class OnPlayerInterarcEvent implements Listener{
 										p.sendMessage(main.s + "Du befindest dich nicht im Editor modus");
 										return;
 									}
-									Editor edit = new Editor(s, p);
-									edit.setc2(l, s);
+									Editor.setc2(l, s);
 									p.sendMessage(main.s + "Arena Corner 2 Wurde gesetzt");
 								}
 							}
@@ -173,8 +190,7 @@ public class OnPlayerInterarcEvent implements Listener{
 										p.sendMessage(main.s + "Du befindest dich nicht im Editor modus");
 										return;
 									}
-									Editor edit = new Editor(s, p);
-									edit.setc1(l, s);
+									Editor.setc1(l, s);
 									p.sendMessage(main.s + "Arena Corner 1 Wurde gesetzt");
 								}
 							}
@@ -187,10 +203,9 @@ public class OnPlayerInterarcEvent implements Listener{
 									p.sendMessage(main.s + "Du befindest dich nicht im Editor modus");
 									return;
 								}
-								Editor edit = new Editor(s, p);
 								Location l = e.getClickedBlock().getLocation();
 								l.setY(l.getY() + 1);
-								edit.setArena(l,s);
+								Editor.setArena(l,s);
 								p.sendMessage(main.s + "Arena Spawn gesetzt");
 							}
 							
@@ -202,10 +217,9 @@ public class OnPlayerInterarcEvent implements Listener{
 									p.sendMessage(main.s + "Du befindest dich nicht im Editor modus");
 									return;
 								}
-								Editor edit = new Editor(s, p);
 								Location l = e.getClickedBlock().getLocation();
 								l.setY(l.getY() + 1);
-								edit.setlobby(l, s);
+								Editor.setlobby(l, s);
 								p.sendMessage(main.s + "Arena Lobby gesetzt");
 							}
 							
@@ -217,10 +231,9 @@ public class OnPlayerInterarcEvent implements Listener{
 									p.sendMessage(main.s + "Du befindest dich nicht im Editor modus");
 									return;
 								}
-								Editor edit = new Editor(s, p);
 								Location l = e.getClickedBlock().getLocation();
 								l.setY(l.getY() + 1);
-								edit.setExit(l,s);
+								Editor.setExit(l,s);
 								p.sendMessage(main.s + "Arena Exit gesetzt");
 							}
 						}
@@ -279,9 +292,67 @@ public class OnPlayerInterarcEvent implements Listener{
 							if(Editor.getEditorName(p) == null){
 								p.sendMessage(main.s + "Du befindest dich nicht im Editor Modus");
 							}else{
-								String s = Editor.getEditorName(p);
-								Editor edit = new Editor(s, p);
-								edit.exit(p);
+								Editor.exit(p);
+							}
+						}else if(e.getItem().getItemMeta().getDisplayName().startsWith(main.s + "Finish Map")){
+							if(Editor.getEditorName(p) == null){
+								p.sendMessage(main.s + "Du befindest dich nicht im Editor Modus");
+							}else{
+								Editor.create(p);
+							}
+						}else if(e.getItem().getItemMeta().getDisplayName().startsWith(main.s + "Team Modus Betreten")){
+							if(Editor.isInEditor(p)){
+								String a = Editor.player.get(p);
+								Editor.exit(p);
+								Team.enterTeam(p, a);
+							}
+						}else if(e.getItem().getItemMeta().getDisplayName().startsWith(main.s + "Fertig Stellen")){
+							if(Editor.isInEditor(p)){
+								String AName = Editor.player.get(p);
+								if(ArenaManager.getManager().ArenaExist(AName)){
+									int i = ArenaManager.getManager().getIDBackfromName(AName);
+									saveMap.saveMap2(i);
+									p.sendMessage(main.s + "Arena wurde gespeichert");
+									Editor.exit(p);
+								}
+							}
+						}else if(e.getItem().getItemMeta().getDisplayName().startsWith(main.s + "Team 1")){
+							if(Team.player.get(p) != null){
+								if(ArenaManager.getManager().ArenaExist(Team.player.get(p))){
+									GuiTeam.openGui(p, ArenaManager.getManager().getArena(ArenaManager.getManager().getIDBackfromName(Team.player.get(p))), 1);
+								}
+							}
+
+
+						}else if(e.getItem().getItemMeta().getDisplayName().startsWith(main.s + "Team 2")){
+							if(Team.player.get(p) != null){
+								if(ArenaManager.getManager().ArenaExist(Team.player.get(p))){
+									GuiTeam.openGui(p, ArenaManager.getManager().getArena(ArenaManager.getManager().getIDBackfromName(Team.player.get(p))), 2);
+								}
+							}
+						}else if(e.getItem().getItemMeta().getDisplayName().startsWith(main.s + "Team Erstellen beenden")){
+							if(Team.player.get(p) != null){
+								if(!ArenaManager.getManager().ArenaExist(Team.player.get(p))){
+									p.sendMessage(main.s + "Die Arena Existiert nicht");
+									return;
+								}
+								
+								Arena arena = ArenaManager.getManager().getArena(ArenaManager.getManager().getIDBackfromName(Team.player.get(p)));
+								
+								if(arena.returnString(1) == ""){
+									p.sendMessage(main.s + "Arena Team 1 Fehlt");
+									return;
+								}
+								
+								if(arena.returnString(2) == ""){
+									p.sendMessage(main.s + "Arena Team 2 Fehlt");
+									return;
+								}
+								
+								saveMap.saveMap2(ArenaManager.getManager().getIDBackfromName(Team.player.get(p)));
+								Team.player.remove(p);
+								Editor.exit(p);
+								p.sendMessage(main.s + "Arena wurde fertiggestellt");
 							}
 						}
 					}

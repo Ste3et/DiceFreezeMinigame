@@ -6,5 +6,6 @@
 	<classpathentry kind="lib" path="C:/Users/Matthias/Desktop/TESTPLUGIN/EffectLib-1.6.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Matthias/Desktop/TESTPLUGIN/Vault.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Matthias/Desktop/TESTPLUGIN/TagAPI.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Matthias/Desktop/TESTPLUGIN/token.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

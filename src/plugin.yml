@@ -3,7 +3,7 @@ version: 1.0
 description: Dicecraft FreezeMinigame
 author: Ste3et_C0st
 website: http://dicecraft.de
-depend: [Vault, ProtocolLib, TagAPI]
+depend: [Vault, ProtocolLib, TagAPI, DiceTokenAPI]
 main: me.Ste3et_C0st.DiceFreezeMinigame.main
 commands: 
   freeze:
